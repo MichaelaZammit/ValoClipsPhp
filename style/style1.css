@@ -1,0 +1,29 @@
+/* container is centered */
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+/* navigation items */
+.nav-pills {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* spacing between nav items */
+.nav-item {
+    margin: 0 10px; 
+}
+
+/* hover effect */
+.nav-pills .nav-link:hover,
+.nav-link.active {
+    background-color: #bd3944;
+    color: inherit;
+}
+
+/* background color */
+body {
+    background-color: #101823;
+}
