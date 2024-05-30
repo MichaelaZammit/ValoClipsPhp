@@ -1,0 +1,12 @@
+footer {
+    display: flex;
+    justify-content: center;
+    background-color: #bd3944;
+    color: #101823;
+    text-align: center;
+    border: 2px solid red;
+    margin-top: 20px;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
