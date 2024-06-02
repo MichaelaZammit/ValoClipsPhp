@@ -1,27 +1,10 @@
 <?php
-    require_once "includes/functions.php";
-
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include 'includes/header.php';
+session_start();
+$CURRENT_PAGE = "Home";
+include("header.php");
 ?>
 
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="well">
-                    <h1>ValoClips</h1>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6" style="left:0.5%;">
-                <img scr="images/ValoClips.png" class="img-round" title="Home">
-            </div>
-        </div>
-    </body>
-</html>
+<h1>Welcome to ValoClips</h1>
+<p>Share and view Valorant clips with the community.</p>
 
-<?php
-    include 'includes/footer.php';
-?>
+<?php include("footer.php"); ?>
