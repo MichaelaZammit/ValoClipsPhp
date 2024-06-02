@@ -1,12 +1,18 @@
 <?php
-    require_once "includes/functions.php";
+session_start();
+$CURRENT_PAGE = "Profile";
+include("header.php");
+include("db.php");
 
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include 'includes/header.php';
+$user_id = $_SESSION['user_id'];
+$sql = "SELECT * FROM users WHERE id='$user_id'";
+$result = $conn->query($sql);
+$user = $result->fetch_assoc();
+
 ?>
 
-<?php
-    include 'includes/footer.php';
-?>
+<h1>Profile</h1>
+<p>Name: <?php echo $user['name']; ?></p>
+<p>Email: <?php echo $user['email']; ?></p>
+
+<?php include("footer.php"); ?>

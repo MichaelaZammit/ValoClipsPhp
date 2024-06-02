@@ -1,12 +1,5 @@
 <?php
-    require_once "includes/functions.php";
-
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include 'includes/header.php';
-?>
-
-<?php
-    include 'includes/footer.php';
-?>
+session_start();
+$CURRENT_PAGE = "Posts";
+include("includes/header.php");
+include("includes/db.php");

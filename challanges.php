@@ -1,12 +1,10 @@
 <?php
-    require_once "includes/functions.php";
-
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include 'includes/header.php';
+session_start();
+$CURRENT_PAGE = "Challenges";
+include("includes/header.php");
 ?>
 
-<?php
-    include 'includes/footer.php';
-?>
+<h1>Challenges</h1>
+<p>Participate in community challenges and showcase your skills.</p>
+
+<?php include("includes/footer.php"); ?>

@@ -1,12 +1,11 @@
 <?php
-    require_once "includes/functions.php";
-
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include 'includes/header.php';
+session_start();
+$CURRENT_PAGE = "Messages";
+include("includes/header.php");
 ?>
 
-<?php
-    include 'includes/footer.php';
-?>
+<h1>Messages</h1>
+<p>View and send messages to other users.</p>
+
+<?php include("includes/footer.php"); ?>
+
