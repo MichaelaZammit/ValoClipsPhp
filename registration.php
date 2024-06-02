@@ -1,72 +1,35 @@
-<?php 
-    require_once "includes/functions.php";
+<?php
+include("includes/db.php");
 
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include "includes/header.php";
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO users (name, email, password) VALUES ('$name', '$email', '$password')";
+    if ($conn->query($sql) === TRUE) {
+        echo "Registration successful";
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+
+    $conn->close();
+}
 ?>
 
-<link rel="stylesheet" href="style\style3.css">
-
-<header class="container-fluid bg-light border-bottom border-secondary p-4">
-    <div class="row">
-        <div class="col-12">
-            <h1>Register</h1>
-        </div>
+<h1>Register</h1>
+<form method="post">
+    <div class="form-group">
+        <label for="name">Name:</label><br>
+        <input type="text" class="form-control" id="name" name="name" required>
     </div>
-</header>
-
-<form action="includes/login-inc.php" method="post">
-    <div class="container">
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="mb-3">
-                    <label for="input-username" class="form-label">Username:</label>
-                    <input type="text" name="username" id="input-username" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label for="input-password" class="form-label">Password:</label>
-                    <input type="password" name="password" id="input-password" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label for="input-email" class="form-label">Email:</label>
-                    <input type="email" name="email" id="input-email" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label for="input-firstName" class="form-label">First Name:</label>
-                    <input type="firtextstName" name="firstName" id="input-firstName" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label for="input-password" class="form-label">Last Name:</label>
-                    <input type="text" name="lastName" id="input-lastName" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label for="input-password" class="form-label">Region:</label>
-                    <input type="text" name="region" id="input-region" class="form-control">
-                </div>
-
-                <br>
-
-                <div class="d-grid">
-                    <button type="submit" name="submit" class="btn btn-primary">Register</button>    
-                </div>
-                <br>
-                <p>
-                <a href="login.php">Log In</a>
-                </p>
-            </div>
-        </div>
+    <div class="form-group">
+        <label for="email">Email:</label><br>
+        <input type="email" class="form-control" id="email" name="email" required>
     </div>
+    <div class="form-group">
+        <label for="password">Password:</label><br>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div><br>
+    <button type="submit" class="btn btn-default">Register</button>
 </form>
-
-
-
-
-
-<?php include "includes/footer.php" ?>

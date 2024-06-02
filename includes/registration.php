@@ -1,35 +1,50 @@
-<?php
-include("db.php");
+<?php 
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+require_once "functions.php";
+require_once "dbh.php";
+require_once "db-functions.php";
 
-    $sql = "INSERT INTO users (name, email, password) VALUES ('$name', '$email', '$password')";
-    if ($conn->query($sql) === TRUE) {
-        echo "Registration successful";
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+if(empty($_POST)){
+    header("location: ../index.php");
+    exit();
+}
+else{
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+    $confPassword = $_POST["confPassword"];
+    $email = $_POST["email"];
+    $firstName = $_POST["firstName"];
+    $lastName = $_POST["lastName"];
+    
+    $address = $_POST["address"];
+    $region = $_POST["region"];
+    
+    
+    // Validations
+    $passwordsMatch = passwordsMatch($password, $confPassword);
+    if (!$passwordsMatch)
+    {
+        header("location:../index.php?error=passwordsDoNotMatch");
+        exit();
     }
 
-    $conn->close();
-}
-?>
+    $invalidUsername = invalidUsername($username);
+    if ($invalidUsername){
+        header("location:../index.php?error=invalidUsername");
+        exit();
+    }
 
-<h1>Register</h1>
-<form method="post">
-    <div class="form-group">
-        <label for="name">Name:</label>
-        <input type="text" class="form-control" id="name" name="name" required>
-    </div>
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" class="form-control" id="email" name="email" required>
-    </div>
-    <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" class="form-control" id="password" name="password" required>
-    </div>
-    <button type="submit" class="btn btn-default">Register</button>
-</form>
+    $emptyInputs = emptyInputs([$username, $password, $confPassword, $email, $firstName,$lastName, $region]);
+    if ($emptyInputs){
+        header("location:../index.php?error=emptyInputs");
+        exit();
+    }
+
+    $invalidEmail = invalidEmail($email);
+    if($invalidEmail){
+        header("location:../index.php?error=invalidEmail");
+        exit();
+    }
+
+    createApplication($conn, $username, $password, $confPassword, $email, $firstName,$lastName, $region);
+}

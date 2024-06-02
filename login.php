@@ -1,52 +1,35 @@
-<?php 
-    require_once "includes/functions.php";
+<?php
+session_start();
+include("includes/db.php");
 
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include "includes/header.php";
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $sql = "SELECT * FROM users WHERE email='$email'";
+    $result = $conn->query($sql);
+    $user = $result->fetch_assoc();
+
+    if (password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['id'];
+        header("Location: index.php");
+    } else {
+        echo "Invalid credentials";
+    }
+}
+
+$conn->close();
 ?>
 
-<link rel="stylesheet" href="style\style3.css">
-
-<header class="container-fluid bg-light border-bottom border-secondary p-4">
-    <div class="row">
-        <div class="col-12">
-            <h1>Login</h1>
-        </div>
+<h1>Login</h1>
+<form method="post">
+    <div class="form-group">
+        <label for="email">Email:</label><br>
+        <input type="email" class="form-control" id="email" name="email" required>
     </div>
-</header>
-
-<form action="includes/login-inc.php" method="post">
-    <div class="container">
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="mb-3">
-                    <label for="input-username" class="form-label">Username:</label>
-                    <input type="text" name="username" id="input-username" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label for="input-password" class="form-label">Password:</label>
-                    <input type="password" name="password" id="input-password" class="form-control">
-                </div>
-
-                <br>
-
-                <div class="d-grid">
-                    <button type="submit" name="submit" class="btn btn-primary">Log In</button>    
-                </div>
-                <br>
-                <p>
-                <a href="registration.php">Register</a>
-                </p>
-            </div>
-        </div>
-    </div>
+    <div class="form-group">
+        <label for="password">Password:</label><br>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div><br>
+    <button type="submit" class="btn btn-default">Login</button>
 </form>
-
-
-
-
-
-<?php include "includes/footer.php" ?>

@@ -1,25 +1,24 @@
 <?php
-    require_once "includes/functions.php";
-
-    require_once "includes/dbh.php";
-    require_once "includes/db-functions.php";
-    
-    include 'includes/header.php';
+include("includes/header.php");
 ?>
 
-    <h1>Contact Us</h1>
-    <form action="send_email.php" method="post">
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
-        
-        <label for="message">Message:</label><br>
-        <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
-        
-        <input type="submit" value="Send">
-    </form>
-</body>
-</html>
+<h1>Contact Us</h1>
+<p>If you have any questions, suggestions, or feedback, please feel free to contact us using the form below:</p>
 
-<?php
-    include 'includes/footer.php';
-?>
+<form method="post" action="contact_process.php">
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="message">Message:</label>
+        <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<?php include("includes/footer.php"); ?>
