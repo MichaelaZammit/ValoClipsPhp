@@ -1,7 +1,7 @@
-<?php 
-    
-    function userExists($conn, $username, $email) {
-    $sql = "SELECT username FROM users WHERE username = ? OR email = ?;";
+<?php
+// Check if a user exists by username or email
+function userExists($conn, $username, $email) {
+    $sql = "SELECT username, email FROM users WHERE username = ? OR email = ?;";
     $stmt = mysqli_stmt_init($conn);
     if (!mysqli_stmt_prepare($stmt, $sql)) {
         die("SQL error");
@@ -18,7 +18,8 @@
     mysqli_stmt_close($stmt);
 }
 
-    function usernameExists($conn, $username) {
+// Check if a username exists
+function usernameExists($conn, $username) {
     $sql = "SELECT COUNT(*) FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
@@ -26,33 +27,29 @@
     $result = $stmt->get_result();
     $row = $result->fetch_array();
 
-    // If count is more than 0, username exists
     return $row[0] > 0;
 }
 
+// Check if an email exists
 function emailExists($conn, $email) {
-    $sql = "SELECT COUNT(*) FROM users WHERE email = ?";  
+    $sql = "SELECT COUNT(*) FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_array();
 
-    // If count is more than 0, email exists
     return $row[0] > 0;
 }
 
-function createUser($conn, $username, $password, $email, $firstName, $lastName, $houseNameNum, $street, $townId, $postCode) {
-    $sql = "INSERT INTO users (username, password, email, firstName, lastName, houseNameNum, street, townId, postCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+// Create a new user
+function createUser($conn, $username, $password, $email, $name, $profile_picture = null) {
+    $sql = "INSERT INTO users (username, password, email, name, profile_picture) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-
-    // Debugging: Output the values being bound
-    error_log("Creating user: $username, $password, $email, $firstName, $lastName, $houseNameNum, $street, $townId, $postCode");
-
-    $stmt->bind_param("sssssssss", $username, $password, $email, $firstName, $lastName, $houseNameNum, $street, $townId, $postCode);
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    $stmt->bind_param("sssss", $username, $hashedPassword, $email, $name, $profile_picture);
 
     if (!$stmt->execute()) {
-        // If execution fails, output the error
         error_log("Error in createUser: " . $stmt->error);
         return false;
     }
@@ -60,6 +57,7 @@ function createUser($conn, $username, $password, $email, $firstName, $lastName, 
     return $stmt->affected_rows > 0;
 }
 
+// Authenticate a user
 function authenticateUser($conn, $username, $password) {
     $sql = "SELECT id, password FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
@@ -70,195 +68,185 @@ function authenticateUser($conn, $username, $password) {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            return $user['id'];  // Return user's ID if password is correct
+            return $user['id'];
         }
     }
     return false;
 }
 
+// Get user details
 function getUserDetails($conn, $userId) {
-    $sql = "SELECT u.username, u.firstName, u.lastName, u.email 
-            FROM users u
-            LEFT JOIN town t ON u.townId = t.id 
-            WHERE u.id = ?"; // Specify 'u.id' instead of just 'id'
+    $sql = "SELECT username, name, email, profile_picture FROM users WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
-function loadRegions($conn){
-    $sql = "SELECT * FROM Region;";
 
+// Load all posts
+function loadAllPosts($conn) {
+    $sql = "SELECT * FROM posts";
     $stmt = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt, $sql)){
-        echo "Could not load Regions";
+    if (!mysqli_stmt_prepare($stmt, $sql)) {
+        echo "Could not load posts";
         exit();
     }
-
     mysqli_stmt_execute($stmt);
-
     $result = mysqli_stmt_get_result($stmt);
-
     mysqli_stmt_close($stmt);
-
     return $result;
 }
 
+// Create a new post
+function createPost($conn, $title, $description, $user_id, $media_url = null) {
+    $sql = "INSERT INTO posts (title, description, user_id, media_url) VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssis", $title, $description, $user_id, $media_url);
 
-function createApplication($conn, $username, $password, $email, $firstName, $lastName, $region)
-{
-    $sql = "INSERT INTO application
-        (username, password, email, firstName, lastName, address, 
-        street, town, course, applicationDate)
-        VALUES(?,?,?,?,?,?,?,?,?,?);";
-
-
-    $stmt = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt, $sql)){
-        header("location: ../index.php?error=stmtfailed");
-        exit();
-    }
-
-    // Automated application date - user does not insert this
-    $applicationDate = date("Y-m-d");
-    
-    // Hashed Password for security
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    mysqli_stmt_bind_param($stmt, "ssssssssss", $username, $hashedPassword, $email, $firstName, $lastName,$region, $applicationDate);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    // redirect back to sign up page once registration is complete
-    header("location: ../index.php?success=true");
-}
-
-function loadCourseLevels($conn){
-    $sql = "SELECT * FROM CourseLevel;";
-
-    $stmt = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt, $sql)){
-        echo "Could not load Course Levels";
-        exit();
-    }
-
-    mysqli_stmt_execute($stmt);
-
-    $result = mysqli_stmt_get_result($stmt);
-
-    mysqli_stmt_close($stmt);
-
-    return $result;
-}
-
-function loadApplication($conn, $id){
-    $sql = "SELECT * FROM Application WHERE id = {$id};";
-
-    $stmt = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt, $sql)){
-        echo "Could not load Application";
-        exit();
-    }
-
-    mysqli_stmt_execute($stmt);
-
-    $result = mysqli_stmt_get_result($stmt);
-
-    mysqli_stmt_close($stmt);
-
-    // only returns database record if it exists
-    if ($row = mysqli_fetch_assoc($result)){
-        return $row;
-    }
-    else
-    {
+    if (!$stmt->execute()) {
+        error_log("Error in createPost: " . $stmt->error);
         return false;
     }
+
+    return $stmt->affected_rows > 0;
 }
 
-function deleteApplication($conn, $id){
-    $sql = "DELETE FROM users WHERE id = ?;";
-
-    $stmt = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt, $sql)){
-        echo "Could not delete Application";
-        exit();
-    }
-
-    mysqli_stmt_bind_param($stmt, "s", $id);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    header("location: ../index.php");
-    exit();
+// Load all comments for a post
+function loadComments($conn, $postId) {
+    $sql = "SELECT * FROM comments WHERE post_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $postId);
+    $stmt->execute();
+    return $stmt->get_result();
 }
 
-function updateApplication($conn, $id, $username, $password, $email, $firstName, $lastName,$address, $street, $town, $course){
-    $sql = "UPDATE application
-            SET username = ?,
-                password = ?,
-                email = ?,
-                firstName = ?,
-                lastName = ?,
-                region = ?,
-            WHERE id = ?;";
+// Create a new comment
+function createComment($conn, $post_id, $user_id, $comment) {
+    $sql = "INSERT INTO comments (post_id, user_id, comment) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iis", $post_id, $user_id, $comment);
 
-    $stmt = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt, $sql)){
-        header("location: ../index.php?error=stmtfailed");
-        exit();
+    if (!$stmt->execute()) {
+        error_log("Error in createComment: " . $stmt->error);
+        return false;
     }
-    
-    // Hashed Password for security
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    mysqli_stmt_bind_param($stmt, "ssssssssss", $username, $hashedPassword, $email, $firstName, $lastName,$region,$id);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    // redirect back to sign up page once registration is complete
-    header("location: ../application.php?application={$id}&success=true");
-    exit();
+    return $stmt->affected_rows > 0;
 }
 
-function loadAllApplications($conn){
-    $sql = "SELECT * FROM users";
+// Load all likes for a post
+function loadLikes($conn, $postId) {
+    $sql = "SELECT * FROM likes WHERE post_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $postId);
+    $stmt->execute();
+    return $stmt->get_result();
+}
 
-    $stmt = mysqli_stmt_init($conn);
-    if(!mysqli_stmt_prepare($stmt, $sql)){
-        echo "Could not load Applications";
-        exit();
+// Create a new like
+function createLike($conn, $post_id, $user_id) {
+    $sql = "INSERT INTO likes (post_id, user_id) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $post_id, $user_id);
+
+    if (!$stmt->execute()) {
+        error_log("Error in createLike: " . $stmt->error);
+        return false;
     }
 
-    mysqli_stmt_execute($stmt);
+    return $stmt->affected_rows > 0;
+}
 
+// Load all messages for a user
+function loadMessages($conn, $userId) {
+    $sql = "SELECT * FROM messages WHERE receiver_id = ? OR sender_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $userId, $userId);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+// Create a new message
+function createMessage($conn, $sender_id, $receiver_id, $message) {
+    $sql = "INSERT INTO messages (sender_id, receiver_id, message) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iis", $sender_id, $receiver_id, $message);
+
+    if (!$stmt->execute()) {
+        error_log("Error in createMessage: " . $stmt->error);
+        return false;
+    }
+
+    return $stmt->affected_rows > 0;
+}
+
+// Load followers for a user
+function loadFollowers($conn, $userId) {
+    $sql = "SELECT * FROM followers WHERE user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+// Add a follower
+function addFollower($conn, $user_id, $follower_id) {
+    $sql = "INSERT INTO followers (user_id, follower_id) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $user_id, $follower_id);
+
+    if (!$stmt->execute()) {
+        error_log("Error in addFollower: " . $stmt->error);
+        return false;
+    }
+
+    return $stmt->affected_rows > 0;
+}
+
+// Load all challenges
+function loadChallenges($conn) {
+    $sql = "SELECT * FROM challenges";
+    $stmt = mysqli_stmt_init($conn);
+    if (!mysqli_stmt_prepare($stmt, $sql)) {
+        echo "Could not load challenges";
+        exit();
+    }
+    mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-
     mysqli_stmt_close($stmt);
-
     return $result;
 }
 
-function userExists($conn, $username, $email){
-    $sql = "SELECT username, password FROM users WHERE username = ? OR email = ?;";
-    $stmt = mysqli_stmt_init($conn);
-    if (!mysqli_stmt_prepare($stmt,$sql)){
-        header("location: ../signup.php?error=stmtfailed");
-        exit();
+// Create a new challenge
+function createChallenge($conn, $title, $description) {
+    $sql = "INSERT INTO challenges (title, description) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $title, $description);
+
+    if (!$stmt->execute()) {
+        error_log("Error in createChallenge: " . $stmt->error);
+        return false;
     }
 
-    mysqli_stmt_bind_param($stmt, "ss", $username, $email);
-    mysqli_stmt_execute($stmt);
-
-    $resultData = mysqli_stmt_get_result($stmt);
-    mysqli_stmt_close($stmt);
-
-    if ($row = mysqli_fetch_assoc($resultData)){
-        return $row;
-    }
-    else
-    {
-        $result = false;
-        return $result;
-    }
+    return $stmt->affected_rows > 0;
 }
+
+// Load all media for a post
+function loadMedia($conn, $postId) {
+    $sql = "SELECT * FROM media WHERE post_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $postId);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+// Add media to a post
+function addMedia($conn, $post_id, $media_url, $media_type) {
+    $sql = "INSERT INTO media (post_id, media_url, media_type) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iss", $post_id, $media_url, $media_type);
+
+    if (!$stmt->execute()) {
+        error_log("Error in addMedia: " . $stmt->error);
+        return false;
+   
