@@ -11,7 +11,15 @@
     <footer>
         <p>&copy; <?php echo date("Y"); ?> ValoClips. All rights reserved.</p>
         <p>
+            &nbsp; <!-- Add one space -->
             <a href="contact.php">Contact Us</a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <!-- Add some spaces -->
+            <?php
+            // Check if the user is logged in
+            if (isset($_SESSION['user_id'])) {
+                echo '<a href="logout.php">Logout</a>';
+            }
+            ?>
         </p>
     </footer>
 
