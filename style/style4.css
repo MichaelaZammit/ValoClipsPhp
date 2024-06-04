@@ -1,0 +1,50 @@
+
+body {
+    color: white;
+    background-color: #101823;
+}
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #101823;
+    margin-bottom: 20px;
+}
+.profile-header img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+}
+.profile-header h1 {
+    margin: 0;
+}
+.profile-header p {
+    margin: 5px 0;
+    color: #666;
+}
+.profile-header form {
+    margin-top: 10px;
+}
+.clips-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.clip {
+    background-color: #101823;
+    border: 1px solid #6e2026;
+    margin: 10px;
+    width: calc(33% - 20px);
+    box-sizing: border-box;
+    padding: 10px;
+    text-align: center;
+}
+.clip h3 {
+    margin: 10px 0;
+}
+.clip video {
+    width: 100%;
+    height: auto;
+}

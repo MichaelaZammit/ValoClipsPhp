@@ -23,39 +23,6 @@ if(isset($_SESSION['user_id'])) {
     // Check if the query was successful
     if ($result) {
         $user = $result->fetch_assoc();
-?>
-        <h1>Hello, <?php echo htmlspecialchars($user['name']); ?></h1>
-        <p>Email: <?php echo htmlspecialchars($user['email']); ?></p>
-        <?php if ($user['profile_picture']) { ?>
-            <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" alt="Profile Picture" style="width:150px;height:150px;">
-        <?php } ?>
-        <form action="upload_profile_picture.php" method="POST" enctype="multipart/form-data">
-            <label for="profile_picture">Upload Profile Picture:</label>
-            <input type="file" name="profile_picture" id="profile_picture">
-            <button type="submit">Upload</button>
-        </form>
-<?php
-        // Query user's clips
-        $sql_posts = "SELECT posts.*, (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS like_count FROM posts WHERE user_id='$user_id'";
-        $result_posts = $conn->query($sql_posts);
-
-        if ($result_posts->num_rows > 0) {
-            echo "<h2>Your Clips</h2>";
-            while($post = $result_posts->fetch_assoc()) {
-                echo "<div>";
-                echo "<h3>" . htmlspecialchars($post['title']) . "</h3>";
-                echo "<p>" . htmlspecialchars($post['description']) . "</p>";
-                if ($post['media_url']) {
-                    echo "<video width='320' height='240' controls>
-                            <source src='" . htmlspecialchars($post['media_url']) . "' type='video/mp4'>
-                          </video>";
-                }
-                echo "<p>Likes: " . $post['like_count'] . "</p>";
-                echo "</div>";
-            }
-        } else {
-            echo "<p>No clips found.</p>";
-        }
 
         // Query followers count
         $sql_followers = "SELECT COUNT(*) AS follower_count FROM followers WHERE user_id='$user_id'";
@@ -66,10 +33,59 @@ if(isset($_SESSION['user_id'])) {
         $sql_following = "SELECT COUNT(*) AS following_count FROM followers WHERE follower_id='$user_id'";
         $result_following = $conn->query($sql_following);
         $following = $result_following->fetch_assoc();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="style/style4.css">
+</head>
+<body>
+    <div class="profile-header">
+        <?php if ($user['profile_picture']) { ?>
+            <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" alt="Profile Picture">
+        <?php } ?>
+        <div>
+            <h1><?php echo htmlspecialchars($user['name']); ?></h1>
+            <p>Followers: <?php echo $followers['follower_count']; ?> | Following: <?php echo $following['following_count']; ?></p>
+            <form action="upload_profile_picture.php" method="POST" enctype="multipart/form-data">
+                <label for="profile_picture">Upload Profile Picture:</label>
+                <input type="file" name="profile_picture" id="profile_picture">
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+    </div>
+    <div class="clips-container">
+<?php
+        // Query user's clips
+        $sql_posts = "SELECT posts.*, (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS like_count FROM posts WHERE user_id='$user_id'";
+        $result_posts = $conn->query($sql_posts);
 
-        echo "<p>Followers: " . $followers['follower_count'] . "</p>";
-        echo "<p>Following: " . $following['following_count'] . "</p>";
-
+        if ($result_posts->num_rows > 0) {
+            while($post = $result_posts->fetch_assoc()) {
+?>
+        <div class="clip">
+            <h3><?php echo htmlspecialchars($post['title']); ?></h3>
+            <p><?php echo htmlspecialchars($post['description']); ?></p>
+            <?php if ($post['media_url']) { ?>
+                <video controls>
+                    <source src="<?php echo htmlspecialchars($post['media_url']); ?>" type="video/mp4">
+                </video>
+            <?php } ?>
+            <p>Likes: <?php echo $post['like_count']; ?></p>
+        </div>
+<?php
+            }
+        } else {
+            echo "<p>No clips found.</p>";
+        }
+?>
+    </div>
+</body>
+</html>
+<?php
     } else {
         echo "Error: " . $conn->error;
     }
