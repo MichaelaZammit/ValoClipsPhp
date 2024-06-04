@@ -178,6 +178,7 @@ function createMessage($conn, $sender_id, $receiver_id, $message) {
     }
 
     return $stmt->affected_rows > 0;
+
 }
 
 // Load followers for a user

@@ -8,7 +8,21 @@ if(!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$receiver_id = $_GET['receiver_id']; // ID of the user to message
+// Debugging: Output session data and URL parameters
+echo "<pre>Session Data: ";
+print_r($_SESSION);
+echo "</pre>";
+
+echo "<pre>URL Parameters: ";
+print_r($_GET);
+echo "</pre>";
+
+if(isset($_GET['receiver_id'])) {
+    $receiver_id = $_GET['receiver_id']; // ID of the user to message
+} else {
+    // Handle the case where receiver_id is not set
+    die("Error: receiver_id not set.");
+}
 ?>
 
 <h1>Messages</h1>
