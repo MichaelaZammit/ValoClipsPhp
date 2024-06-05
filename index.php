@@ -32,11 +32,20 @@ $result = $conn->query($sql);
                 <?php
                 // Fetch comments for this post
                 $post_id = $row['id'];
-                $comment_sql = "SELECT * FROM comments WHERE post_id = '$post_id'";
+                $comment_sql = "SELECT comments.*, users.name AS commenter_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE post_id = '$post_id'";
                 $comment_result = $conn->query($comment_sql);
                 while ($comment_row = $comment_result->fetch_assoc()): ?>
-                    <p><?php echo htmlspecialchars($comment_row['comment']); ?></p>
+                    <div class="comment" data-comment-id="<?php echo $comment_row['id']; ?>">
+                        <p class="comment-text"><?php echo htmlspecialchars($comment_row['comment']); ?> - <em>by <?php echo htmlspecialchars($comment_row['commenter_name']); ?></em></p>
+                        <?php if ($comment_row['user_id'] == $_SESSION['user_id']): ?>
+                            <button class="delete-comment-btn" data-comment-id="<?php echo $comment_row['id']; ?>">Delete</button>
+                        <?php endif; ?>
+                    </div>
                 <?php endwhile; ?>
+                <form class="comment-form" data-post-id="<?php echo $post_id; ?>">
+                    <input type="text" name="comment" placeholder="Write a comment..." required>
+                    <button type="submit">Post</button>
+                </form>
             </div>
         </div>
     <?php endwhile; ?>
@@ -70,8 +79,39 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Comment form submission
+    $(".comment-form").submit(function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var post_id = form.data("post-id");
+        var comment = form.find("input[name='comment']").val();
+        
+        $.post("add_comment.php", { post_id: post_id, comment: comment }, function(data) {
+            var response = JSON.parse(data);
+            if (response.status == "success") {
+                var newComment = $("<div class='comment'><p class='comment-text'>" + comment + " - <em>by You</em></p></div>");
+                form.before(newComment);
+                form.find("input[name='comment']").val(""); // Clear the input
+            } else {
+                alert(response.message);
+            }
+        });
+    });
+
+    // Delete comment button click
+    $(document).on("click", ".delete-comment-btn", function() {
+        var comment_id = $(this).data("comment-id");
+        $.post("delete_comment.php", { comment_id: comment_id }, function(data) {
+            var response = JSON.parse(data);
+            if (response.status == "success") {
+                $("div[data-comment-id='" + comment_id + "']").remove();
+            } else {
+                alert(response.message);
+            }
+        });
+    });
 });
 </script>
 
 <?php include("includes/footer.php"); ?>
-code.jquery.com
