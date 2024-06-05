@@ -8,7 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $sql = "INSERT INTO users (name, email, password) VALUES ('$name', '$email', '$password')";
     if ($conn->query($sql) === TRUE) {
-        echo "Registration successful";
+        // Registration successful, redirect to login page
+        header("Location: login.php");
+        exit();
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
@@ -33,3 +35,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div><br>
     <button type="submit" class="btn btn-default">Register</button>
 </form>
+<p>Already have an account? <a href="login.php">Login here</a></p>

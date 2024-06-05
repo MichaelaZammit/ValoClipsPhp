@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         header("Location: index.php");
+        exit();
     } else {
         echo "Invalid credentials";
     }
@@ -33,3 +34,4 @@ $conn->close();
     </div><br>
     <button type="submit" class="btn btn-default">Login</button>
 </form>
+<p>Don't have an account? <a href="registration.php">Register here</a></p>
