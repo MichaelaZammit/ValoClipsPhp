@@ -9,6 +9,7 @@ $sql = "SELECT posts.*, users.name FROM posts INNER JOIN users ON posts.user_id 
 $result = $conn->query($sql);
 ?>
 <link rel="stylesheet" href="style/style4.css">
+<link rel="stylesheet" href="style/style6.css">
 <h1>Your Feed</h1>
 
 <div id="posts">
