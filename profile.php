@@ -59,8 +59,19 @@ if(isset($_SESSION['user_id'])) {
     </div>
     <div class="clips-container">
 <?php
-        // Query user's clips
-        $sql_posts = "SELECT posts.*, (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS like_count FROM posts WHERE user_id='$user_id'";
+        // Query user's clips and shared clips
+        $sql_posts = "
+            (SELECT posts.*, users.name AS original_poster, (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS like_count, 'own' AS post_type 
+             FROM posts 
+             INNER JOIN users ON posts.user_id = users.id 
+             WHERE posts.user_id='$user_id')
+            UNION
+            (SELECT posts.*, users.name AS original_poster, (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS like_count, 'shared' AS post_type 
+             FROM posts 
+             INNER JOIN shares ON posts.id = shares.post_id 
+             INNER JOIN users ON posts.user_id = users.id 
+             WHERE shares.user_id='$user_id')
+            ORDER BY created_at DESC";
         $result_posts = $conn->query($sql_posts);
 
         if ($result_posts->num_rows > 0) {
@@ -69,6 +80,9 @@ if(isset($_SESSION['user_id'])) {
         <div class="clip">
             <h3><?php echo htmlspecialchars($post['title']); ?></h3>
             <p><?php echo htmlspecialchars($post['description']); ?></p>
+            <?php if ($post['post_type'] == 'shared') { ?>
+                <p><em>Shared from <?php echo htmlspecialchars($post['original_poster']); ?>'s profile</em></p>
+            <?php } ?>
             <?php if ($post['media_url']) { ?>
                 <video controls>
                     <source src="<?php echo htmlspecialchars($post['media_url']); ?>" type="video/mp4">
