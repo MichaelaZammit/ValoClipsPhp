@@ -18,12 +18,17 @@ if(isset($_SESSION['user_id']) && isset($_POST['post_id'])) {
         $sql = "INSERT INTO shares (post_id, user_id) VALUES (?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ii", $post_id, $user_id);
-        $stmt->execute();
-
-        echo json_encode(array("status" => "success"));
+        if ($stmt->execute()) {
+            echo json_encode(array("status" => "success"));
+        } else {
+            echo json_encode(array("status" => "error", "message" => "Error sharing post."));
+        }
     } else {
         echo json_encode(array("status" => "error", "message" => "You have already shared this post."));
     }
+
+    $stmt->close();
+    $conn->close();
 } else {
     echo json_encode(array("status" => "error", "message" => "Unauthorized access."));
 }

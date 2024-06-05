@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("include/db.php");
+include("includes/db.php");
 
 if(isset($_SESSION['user_id']) && isset($_POST['post_id'])) {
     $user_id = $_SESSION['user_id'];
@@ -18,12 +18,17 @@ if(isset($_SESSION['user_id']) && isset($_POST['post_id'])) {
         $sql = "INSERT INTO likes (post_id, user_id) VALUES (?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ii", $post_id, $user_id);
-        $stmt->execute();
-
-        echo json_encode(array("status" => "success"));
+        if ($stmt->execute()) {
+            echo json_encode(array("status" => "success"));
+        } else {
+            echo json_encode(array("status" => "error", "message" => "Error liking post."));
+        }
     } else {
         echo json_encode(array("status" => "error", "message" => "You have already liked this post."));
     }
+
+    $stmt->close();
+    $conn->close();
 } else {
     echo json_encode(array("status" => "error", "message" => "Unauthorized access."));
 }

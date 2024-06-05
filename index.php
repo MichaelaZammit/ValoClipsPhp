@@ -14,12 +14,12 @@ $result = $conn->query($sql);
 <div id="posts">
     <?php while($row = $result->fetch_assoc()): ?>
         <div class="post" data-post-id="<?php echo $row['id']; ?>">
-            <h2><?php echo $row['title']; ?></h2>
-            <p><?php echo $row['description']; ?></p>
-            <p>Posted by: <?php echo $row['name']; ?></p>
+            <h2><?php echo htmlspecialchars($row['title']); ?></h2>
+            <p><?php echo htmlspecialchars($row['description']); ?></p>
+            <p>Posted by: <?php echo htmlspecialchars($row['name']); ?></p>
             <?php if ($row['media_url']): ?>
                 <video width="320" height="240" controls>
-                    <source src="<?php echo $row['media_url']; ?>" type="video/mp4">
+                    <source src="<?php echo htmlspecialchars($row['media_url']); ?>" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             <?php endif; ?>
@@ -35,11 +35,43 @@ $result = $conn->query($sql);
                 $comment_sql = "SELECT * FROM comments WHERE post_id = '$post_id'";
                 $comment_result = $conn->query($comment_sql);
                 while ($comment_row = $comment_result->fetch_assoc()): ?>
-                    <p><?php echo $comment_row['comment']; ?></p>
+                    <p><?php echo htmlspecialchars($comment_row['comment']); ?></p>
                 <?php endwhile; ?>
             </div>
         </div>
     <?php endwhile; ?>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Like button click
+    $(".like-btn").click(function() {
+        var post_id = $(this).data("post-id");
+        $.post("like_post.php", { post_id: post_id }, function(data) {
+            var response = JSON.parse(data);
+            if (response.status == "success") {
+                alert("Post liked!");
+            } else {
+                alert(response.message);
+            }
+        });
+    });
+
+    // Share button click
+    $(".share-btn").click(function() {
+        var post_id = $(this).data("post-id");
+        $.post("share_post.php", { post_id: post_id }, function(data) {
+            var response = JSON.parse(data);
+            if (response.status == "success") {
+                alert("Post shared!");
+            } else {
+                alert(response.message);
+            }
+        });
+    });
+});
+</script>
+
 <?php include("includes/footer.php"); ?>
+code.jquery.com
