@@ -6,16 +6,20 @@ include("includes/db.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $targetDirectory = "uploads/";
-    $targetFile = $targetDirectory . basename($_FILES["videoToUpload"]["name"]);
+    $originalFileName = basename($_FILES["videoToUpload"]["name"]);
+    $targetFile = $targetDirectory . $originalFileName;
     $uploadOk = 1;
     $videoFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
     $title = $_POST["title"];
     $description = $_POST["description"];
+    $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
 
-    // Check if file already exists
-    if (file_exists($targetFile)) {
-        echo "Sorry, file already exists.";
-        $uploadOk = 0;
+    // Check if file already exists and rename it
+    $counter = 1;
+    while (file_exists($targetFile)) {
+        $fileNameWithoutExt = pathinfo($originalFileName, PATHINFO_FILENAME);
+        $targetFile = $targetDirectory . $fileNameWithoutExt . '_' . $counter . '.' . $videoFileType;
+        $counter++;
     }
 
     // Allow only certain video formats (you can add more formats as needed)
@@ -30,9 +34,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Sorry, your file was not uploaded.";
     } else {
         if (move_uploaded_file($_FILES["videoToUpload"]["tmp_name"], $targetFile)) {
-            echo "The video file " . basename($_FILES["videoToUpload"]["name"]) . " has been uploaded.";
-            echo "<br>Title: $title";
-            echo "<br>Description: $description";
+            // File uploaded successfully, now insert details into database
+            $conn = new mysqli("localhost", "root", "", "valoclips");
+
+            // Check for connection errors
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+
+            $stmt = $conn->prepare("INSERT INTO posts (title, description, user_id, media_url) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssis", $title, $description, $user_id, $targetFile);
+
+            if ($stmt->execute()) {
+                echo "The video file " . basename($targetFile) . " has been uploaded.";
+                echo "<br>Title: $title";
+                echo "<br>Description: $description";
+            } else {
+                echo "Error: " . $stmt->error;
+            }
+
+            $stmt->close();
+            $conn->close();
         } else {
             echo "Sorry, there was an error uploading your video file.";
         }
@@ -90,15 +112,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div id="upload-form">
         <h2>Upload Your Video</h2>
         <form action="post.php" method="post" enctype="multipart/form-data">
-            <input type="file" name="videoToUpload" id="videoToUpload">
-            <input type="text" name="title" placeholder="Title">
-            <textarea name="description" placeholder="Description"></textarea>
+            <input type="file" name="videoToUpload" id="videoToUpload" required>
+            <input type="text" name="title" placeholder="Title" required>
+            <textarea name="description" placeholder="Description" required></textarea>
             <input type="submit" value="Upload Video" name="submit">
         </form>
     </div>
 </body>
 </html>
-
-
 
 <?php include("includes/footer.php"); ?>

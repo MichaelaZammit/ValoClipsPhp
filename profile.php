@@ -9,7 +9,7 @@ if(isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 
     // Establish database connection
-    $conn = new mysqli("localhost", "username", "password", "valoclips");
+    $conn = new mysqli("localhost", "root", "", "valoclips");
 
     // Check for connection errors
     if ($conn->connect_error) {
@@ -44,7 +44,7 @@ if(isset($_SESSION['user_id'])) {
 </head>
 <body>
     <div class="profile-header">
-        <?php if ($user['profile_picture']) { ?>
+        <?php if (!empty($user['profile_picture']) && file_exists($user['profile_picture'])) { ?>
             <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" alt="Profile Picture">
         <?php } ?>
         <div>
@@ -52,7 +52,7 @@ if(isset($_SESSION['user_id'])) {
             <p>Followers: <?php echo $followers['follower_count']; ?> | Following: <?php echo $following['following_count']; ?></p>
             <form action="upload_profile_picture.php" method="POST" enctype="multipart/form-data">
                 <label for="profile_picture">Upload Profile Picture:</label>
-                <input type="file" name="profile_picture" id="profile_picture">
+                <input type="file" name="profile_picture" id="profile_picture" required>
                 <button type="submit">Upload</button>
             </form>
         </div>
