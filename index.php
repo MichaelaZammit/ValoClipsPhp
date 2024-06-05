@@ -5,7 +5,7 @@ include("includes/header.php");
 include("includes/db.php");
 
 // Fetch posts from the database
-$sql = "SELECT posts.*, users.name FROM posts INNER JOIN users ON posts.user_id = users.id ORDER BY created_at DESC";
+$sql = "SELECT posts.*, users.name, users.id AS user_id FROM posts INNER JOIN users ON posts.user_id = users.id ORDER BY created_at DESC";
 $result = $conn->query($sql);
 ?>
 <link rel="stylesheet" href="style/style4.css">
@@ -17,7 +17,27 @@ $result = $conn->query($sql);
         <div class="post" data-post-id="<?php echo $row['id']; ?>">
             <h2><?php echo htmlspecialchars($row['title']); ?></h2>
             <p><?php echo htmlspecialchars($row['description']); ?></p>
-            <p>Posted by: <?php echo htmlspecialchars($row['name']); ?></p>
+            <p>
+                Posted by: <?php echo htmlspecialchars($row['name']); ?>
+                <?php if ($row['user_id'] != $_SESSION['user_id']): ?>
+                    <button class="follow-btn" data-user-id="<?php echo $row['user_id']; ?>">
+                        <?php
+                        // Check if the current user is already following this user
+                        $follow_sql = "SELECT * FROM followers WHERE user_id = ? AND follower_id = ?";
+                        $follow_stmt = $conn->prepare($follow_sql);
+                        $follow_stmt->bind_param("ii", $row['user_id'], $_SESSION['user_id']);
+                        $follow_stmt->execute();
+                        $follow_result = $follow_stmt->get_result();
+                        if ($follow_result->num_rows > 0) {
+                            echo "Unfollow";
+                        } else {
+                            echo "Follow";
+                        }
+                        $follow_stmt->close();
+                        ?>
+                    </button>
+                <?php endif; ?>
+            </p>
             <?php if ($row['media_url']): ?>
                 <video width="320" height="240" controls>
                     <source src="<?php echo htmlspecialchars($row['media_url']); ?>" type="video/mp4">
@@ -107,6 +127,24 @@ $(document).ready(function() {
             var response = JSON.parse(data);
             if (response.status == "success") {
                 $("div[data-comment-id='" + comment_id + "']").remove();
+            } else {
+                alert(response.message);
+            }
+        });
+    });
+
+    // Follow button click
+    $(document).on("click", ".follow-btn", function() {
+        var user_id = $(this).data("user-id");
+        var button = $(this);
+        $.post("follow_user.php", { user_id: user_id }, function(data) {
+            var response = JSON.parse(data);
+            if (response.status == "success") {
+                if (button.text() === "Follow") {
+                    button.text("Unfollow");
+                } else {
+                    button.text("Follow");
+                }
             } else {
                 alert(response.message);
             }
