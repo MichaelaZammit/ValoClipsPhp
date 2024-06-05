@@ -29,7 +29,7 @@ if (!$receiver_id) {
     $stmt->close();
 }
 ?>
-
+<link rel="stylesheet" href="style/style4.css">
 <h1>Messages</h1>
 
 <?php if (!$receiver_id): ?>

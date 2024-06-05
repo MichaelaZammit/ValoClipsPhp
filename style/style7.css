@@ -1,5 +1,4 @@
 body {
-    color: white;
     background-color: #101823;
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -18,54 +17,6 @@ h1 {
 p {
     color: #b0b0b0;
     margin-bottom: 20px;
-}
-
-#challenges {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.challenge {
-    background-color: #0a111a;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-    width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s;
-}
-
-.challenge:hover {
-    transform: translateY(-5px);
-}
-
-.challenge h2 {
-    font-size: 1.5em;
-    margin: 0 0 10px;
-}
-
-.challenge p {
-    margin: 10px 0;
-    line-height: 1.5;
-}
-
-.btn {
-    background-color: #bd3944;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.btn:hover {
-    background-color: #a72e39;
 }
 
 .profile-header {
@@ -90,11 +41,34 @@ p {
 
 .profile-header p {
     margin: 5px 0;
-    color: #666;
+    color: #b0b0b0;
 }
 
 .profile-header form {
     margin-top: 10px;
+}
+
+.profile-header label {
+    color: #b0b0b0;
+    margin-right: 10px;
+}
+
+.profile-header input[type="file"] {
+    color: #b0b0b0;
+}
+
+.profile-header button {
+    background-color: #bd3944;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profile-header button:hover {
+    background-color: #a72e39;
 }
 
 .clips-container {
@@ -104,20 +78,46 @@ p {
 }
 
 .clip {
-    background-color: #101823;
+    background-color: #0a111a;
     border: 1px solid #6e2026;
     margin: 10px;
     width: calc(33% - 20px);
     box-sizing: border-box;
     padding: 10px;
     text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
+}
+
+.clip:hover {
+    transform: translateY(-5px);
 }
 
 .clip h3 {
+    color: #fff;
     margin: 10px 0;
+}
+
+.clip p {
+    color: #b0b0b0;
 }
 
 .clip video {
     width: 100%;
     height: auto;
+}
+
+.btn {
+    background-color: #bd3944;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #a72e39;
 }
