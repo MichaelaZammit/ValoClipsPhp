@@ -1,8 +1,3 @@
-# ValoClipsPHP
- Certainly! Below is a README file that describes your project, how to set it up, and how to use it.
-
----
-
 # ValoClips
 
 ValoClips is a web application for uploading and sharing video clips. Users can register, log in, upload videos, view profiles, follow other users, like and share videos, and send messages to their followers.
